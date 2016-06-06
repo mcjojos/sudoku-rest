@@ -59,6 +59,17 @@ java -jar target/sudoku-rest-1.0-SNAPSHOT.jar java --server.port=8181
    point: row:X, column:Y -- zero-based indexes, valid values are 0-8 (inclusive)
    
    For more information check SudokuMove.java.
+   
+   
+   The returned object includes several fields:
+   
+   board - the sudoku board after the move if the requested board wasn't already finished or invalid, or the initial board otherwise.
+   
+   validationStatus - can take one out of three values FINISHED, VALID or INVALID.
+   
+   state - BEFORE_MOVE or AFTER_MOVE. This is the state the validationStatus refers to.
+   
+   invalidityWarnings - any additional information regarding the reason the board is invalid. 
 
 # Some simple examples would be:
 
