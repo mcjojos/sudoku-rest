@@ -12,11 +12,15 @@ You'll need Java 8 to compile and run the application. You'll also need maven to
 ## How do I run it?
 
 You can run the application using
+
 mvn spring-boot:run
 
 Or you can build the JAR file with
+
 mvn clean package
-and run the JAR by typing:
+
+and run the JAR by typing
+
 java -jar target/sudoku-rest-1.0-SNAPSHOT.jar java
 
 If you are experiencing problems starting the embedded tomcat instance you might want to try changing the port by issuing
