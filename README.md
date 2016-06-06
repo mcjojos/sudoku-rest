@@ -21,7 +21,7 @@ mvn clean package
 
 and run the JAR by typing
 
-java -jar target/sudoku-rest-1.0-SNAPSHOT.jar java
+java -jar target/sudoku-rest-1.0-SNAPSHOT.jar
 
 If you are experiencing problems starting the embedded tomcat instance you might want to try changing the port by issuing
 java -jar target/sudoku-rest-1.0-SNAPSHOT.jar java --server.port=8181
