@@ -9,7 +9,7 @@ A move is considered valid if the number in question is not contained in the sam
 
 You'll need Java 8 to compile and run the application. You'll also need maven to build it.
 
-## Build an executable JAR
+## How do I run it?
 
 You can run the application using
 mvn spring-boot:run

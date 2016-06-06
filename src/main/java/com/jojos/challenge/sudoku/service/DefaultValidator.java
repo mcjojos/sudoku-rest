@@ -5,6 +5,8 @@ import com.jojos.challenge.sudoku.domain.Point;
 import com.jojos.challenge.sudoku.domain.SudokuMove;
 import com.jojos.challenge.sudoku.domain.ValidationResult;
 import com.jojos.challenge.sudoku.utils.SudokuUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.stereotype.Component;
@@ -37,6 +39,8 @@ import static com.jojos.challenge.sudoku.domain.ValidationResult.State;
 @Scope(value="request", proxyMode = ScopedProxyMode.INTERFACES)
 public class DefaultValidator implements Validator {
 
+    private static final Logger log = LoggerFactory.getLogger(DefaultValidator.class);
+
     /*
     The following three arrays are classified as "secondary" or "helper" arrays,
     in the sense that they should help us with the validations.
@@ -66,6 +70,7 @@ public class DefaultValidator implements Validator {
 
         // Don't validate any move on a board that is already finished or invalid
         if (!isFinished() && status != ValidationStatus.INVALID) {
+            log.debug("Proceed with movement validation");
             short[][] board = sudokuMove.getBoard();
             short number = sudokuMove.getNumber();
             Point point = sudokuMove.getPoint();
@@ -76,29 +81,32 @@ public class DefaultValidator implements Validator {
             State state = State.AFTER_MOVE;
             // first check if the valid board contains any element at this point
             if (board[row][column] != 0) {
-                boardValidationResult = ValidationResult.of(board, state,
-                        Collections.singletonList(String.format("Board already contains number %d at %s",
-                                board[row][column], point)));
+                String warnMsg = String.format("Board already contains number %d at %s", board[row][column], point);
+                log.warn(warnMsg);
+                boardValidationResult = ValidationResult.of(board, state, Collections.singletonList(warnMsg));
             } else {
                 // make our number value a zero-based index for convenience accessing our tables
                 short indexedNumber = (short) (number - 1);
 
                 List<String> invalidityWarnings = new ArrayList<>();
                 if (rows[row][indexedNumber]) {
-                    invalidityWarnings.add(String.format("Board already contains the same number %d at row %d",
-                            number, row));
+                    String warnMsg = String.format("Board already contains the same number %d at row %d", number, row);
+                    log.warn(warnMsg);
+                    invalidityWarnings.add(warnMsg);
                 }
                 if (columns[column][indexedNumber]) {
-                    invalidityWarnings.add(String.format("Board already contains the same number %d at column %d",
-                            number, column));
+                    String warnMsg = String.format("Board already contains the same number %d at column %d", number, column);
+                    log.warn(warnMsg);
+                    invalidityWarnings.add(warnMsg);
                 }
 
                 // identify the square that our rows and columns map to our sudoku board
                 short squareIndex = SudokuUtils.SQUARE_INDEXES[row][column];
 
                 if (squares[squareIndex][indexedNumber]) {
-                    invalidityWarnings.add(String.format("Board already contains the same number %d at square %d",
-                            number, squareIndex));
+                    String warnMsg = String.format("Board already contains the same number %d at square %d", number, squareIndex);
+                    log.warn(warnMsg);
+                    invalidityWarnings.add(warnMsg);
                 }
 
                 if (invalidityWarnings.isEmpty()) {
@@ -126,6 +134,8 @@ public class DefaultValidator implements Validator {
      * @return a validation result having always a state of {State#BEFORE_MOVE}. The status can be FINISHED, VALID or INVALID
      */
     private ValidationResult resolveAndValidateSecondaryArrays(short[][] board) {
+        log.debug("Setting secondary arrays");
+
         List<String> invalidityReasons = new ArrayList<>();
 
         for (short i = 0; i < board.length; i++) {
@@ -133,7 +143,9 @@ public class DefaultValidator implements Validator {
                 // at this point permitted values for the indexValue are considered 0-9
                 short value = board[i][j];
                 if (!isPermittedValue(value)) {
-                    throw new ApplicationException(String.format("Value %d on board is not between permitted values", value));
+                    String errorMsg = String.format("Value %d on board is not between permitted values", value);
+                    log.error(errorMsg);
+                    throw new ApplicationException(errorMsg);
                 } else if (value != 0) {   // skip 0 values - they are permitted but indicate no-value
 
                     // set the indexValue to be zero-based for convenience
@@ -142,13 +154,17 @@ public class DefaultValidator implements Validator {
                     if (rows[i][indexValue] == false) {
                         rows[i][indexValue] = true;
                     } else {
-                        invalidityReasons.add(String.format("Duplicate value %d found in %d row", value, i));
+                        String warnMsg = String.format("Duplicate value %d found in %d row", value, i);
+                        log.warn(warnMsg);
+                        invalidityReasons.add(warnMsg);
                     }
 
                     if (columns[j][indexValue] == false) {
                         columns[j][indexValue] = true;
                     } else {
-                        invalidityReasons.add(String.format("Duplicate value %d found in %d column", value, j));
+                        String warnMsg = String.format("Duplicate value %d found in %d column", value, j);
+                        log.warn(warnMsg);
+                        invalidityReasons.add(warnMsg);
                     }
 
                     // this line over here maps (i, j) points to squares in our sudoku board
@@ -158,9 +174,10 @@ public class DefaultValidator implements Validator {
                         squares[squareIndex][indexValue] = true;
                         ++totalValidNumbers;
                     } else {
-                        invalidityReasons.add(String.format("Duplicate value %d found in %d square", value, squareIndex));
+                        String warnMsg = String.format("Duplicate value %d found in %d square", value, squareIndex);
+                        log.warn(warnMsg);
+                        invalidityReasons.add(warnMsg);
                     }
-
                 }
             }
         }

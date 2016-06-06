@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.jojos.challenge.sudoku.utils.SudokuUtils;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -64,6 +65,15 @@ public class ValidationResult {
         return invalidityWarnings;
     }
 
+    @Override
+    public String toString() {
+        return "ValidationResult{" +
+                "board=" + Arrays.deepToString(board) +
+                ", validationStatus=" + validationStatus +
+                ", state=" + state +
+                ", invalidityWarnings=" + invalidityWarnings +
+                '}';
+    }
 
     public enum ValidationStatus {
         VALID,

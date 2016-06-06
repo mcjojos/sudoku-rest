@@ -13,14 +13,22 @@ public class ErrorInfo {
     public final int status;
     public final String reason;
     public final String url;
-    public final Exception exception;
     public final String message;
 
     public ErrorInfo(HttpStatus httpStatus, String url, Exception exception) {
         this.status = httpStatus.value();
         this.reason = httpStatus.getReasonPhrase();
         this.url = url;
-        this.exception = exception;
         this.message = exception.getMessage();
+    }
+
+    @Override
+    public String toString() {
+        return "ErrorInfo{" +
+                "status=" + status +
+                ", reason='" + reason + '\'' +
+                ", url='" + url + '\'' +
+                ", message='" + message + '\'' +
+                '}';
     }
 }
